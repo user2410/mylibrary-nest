@@ -1,0 +1,129 @@
+// This is your Prisma schema file
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// enum USER_ROLE {
+//   USER
+//   ADMIN
+// }
+
+// enum BORROW_STATUS {
+//   PENDING1
+//   BORROWED
+//   PENDING2
+//   RETURNED
+//   REJECTED
+// }
+
+// enum RESERVE_STATUS {
+//   PENDING1
+//   PENDING2
+// }
+
+model Book {
+  id          Int          @id @default(autoincrement())
+  isbn        String       @unique
+  title       String
+  authors     BookAuthor[]
+  cats        Category[]
+  language    String
+  publishDate DateTime     @map("publish_date")
+  publisher   String
+  pageCount   Int          @map("page_count")
+  width       Float
+  length      Float
+  description String?
+  coverUrl    String?      @default("https://firebasestorage.googleapis.com/v0/b/web20221-494f6.appspot.com/o/blank_cover.png?alt=media&token=2a5aab82-e910-49c7-8a7e-d4eb03db324d") @map("cover_url")
+  quantity    Int?         @default(0)
+  price       Float
+  views       Int?         @default(0)
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  // borrows     Borrow[]
+
+  @@map("books")
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  books Book[]
+
+  @@map("categories")
+}
+
+model Author {
+  id       Int          @id @default(autoincrement())
+  name     String       @unique
+  imageUrl String?
+  about    String?      @default("")
+  books    BookAuthor[]
+
+  @@map("authors")
+}
+
+model BookAuthor {
+  book     Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  bookId   Int
+  author   Author @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId Int
+  role     String
+
+  @@id([bookId, authorId])
+}
+
+// model User {
+//   id             String   @id @default(uuid())
+//   name           String
+//   hashedPassword String   @map("password")
+//   email          String
+//   phone          String
+//   borrows        Borrow[]
+
+//   @@map("users")
+// }
+
+// model Borrow {
+//   id         String        @id @default(uuid())
+//   book       Book          @relation(fields: [bookId], references: [id])
+//   bookId     String        @map("book_id")
+//   user       User          @relation(fields: [userId], references: [id])
+//   userId     String        @map("user_id")
+//   borrowDate DateTime      @default(now()) @map("borrowed_date")
+//   expiryDate DateTime      @map("expiry_date")
+//   returnDate DateTime?     @map("return_date")
+//   updatedAt  DateTime
+//   status     BORROW_STATUS @default(PENDING1)
+
+//   @@map("borrows")
+// }
+
+// model BorrowReport {
+//   id      String @id @default(uuid())
+//   image   String
+//   content String
+
+//   @@map("borrow_reports")
+// }
+
+// model Reserve {
+//   id String @id @default(uuid())
+
+//   @@map("reserves")
+// }
+
+// model Comment {
+//   id String @id @default(uuid())
+//   userId String @map("user_id")
+//   bookId String @map("book_id")
+//   @@map("comments")
+// }
